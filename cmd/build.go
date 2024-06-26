@@ -4,9 +4,11 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"time"
 
+	"github.com/Walter0697/zonai/model"
 	"github.com/Walter0697/zonai/util"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -51,21 +53,32 @@ var buildCmd = &cobra.Command{
 				if projects.Flag == flag {
 					imageName := util.GetImageName(currentProject, &projects)
 					version := 1
-					for _, history := range history.List {
-						if history.ImageName == imageName {
-							if history.BuildDate == now {
-								version++
-								history.BuildVersion = version
+					found := false
+					for hindex, h := range history.List {
+						if h.ImageName == imageName {
+							if h.BuildDate == now {
+								version = h.BuildVersion + 1
+								h.BuildVersion = version
 							} else {
 								version = 1
-								history.BuildVersion = version
-								history.BuildDate = now
+								h.BuildVersion = version
+								h.BuildDate = now
 							}
+							found = true
+							history.List[hindex] = h
+							break
 						}
+					}
+					if !found {
+						history.List = append(history.List, model.BuildItem{
+							ImageName:    imageName,
+							BuildDate:    now,
+							BuildVersion: 1,
+						})
 					}
 					imageTag := now
 					if version != 1 {
-						imageTag = imageTag + "-" + string(version)
+						imageTag = imageTag + "-" + fmt.Sprintf("%d", version)
 					}
 					util.BuildProject(currentProject, &projects, &configuration, imageTag)
 					break
