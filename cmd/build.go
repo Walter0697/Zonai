@@ -16,15 +16,16 @@ import (
 
 // buildCmd represents the build command
 var buildCmd = &cobra.Command{
-	Use:   "build [project name] (-a | --all) [...extra flags for your own project]",
+	Use:   "build [project name] (-a | --all) (-c | --compress) [...extra flags for your own project]",
 	Short: "Build your project into a docker image.",
-	Long:  `Build your project into a docker image, with different instruction, such as Frontend only, Backend only or Fullstack.`,
+	Long: `Build your project into a docker image, with different instruction, such as Frontend only, Backend only or Fullstack.
+	You can also select to compress all images after built.`,
 	Example: `
 	zonai build POSSystem -a
 	zonai build POSSystem f b	// f for frontend, b for backend, please use zonai list to see your project flag
+	zonai build POSSystem -a -c
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		util.CheckSetup()
 		projectName := args[0]
 		if projectName == "" {
 			color.Red("--> Please provide a project name")
@@ -38,6 +39,7 @@ var buildCmd = &cobra.Command{
 		}
 
 		allFlag, _ := cmd.Flags().GetBool("all")
+		compressFlag, _ := cmd.Flags().GetBool("compress")
 		buildFlags := []string{}
 		if allFlag {
 			buildFlags = util.GetAllProjectFlags(currentProject)
@@ -48,6 +50,7 @@ var buildCmd = &cobra.Command{
 		configuration := util.ReadConfiguration()
 		history := util.ReadBuildHistory()
 		now := time.Now().Format("2006-01-02")
+		image_list := []string{}
 		for _, projects := range currentProject.List {
 			for _, flag := range buildFlags {
 				if projects.Flag == flag {
@@ -80,16 +83,24 @@ var buildCmd = &cobra.Command{
 					if version != 1 {
 						imageTag = imageTag + "-" + fmt.Sprintf("%d", version)
 					}
-					util.BuildProject(currentProject, &projects, &configuration, imageTag)
+					imageFilename := util.BuildProject(currentProject, &projects, &configuration, imageTag)
+					if imageFilename != "" {
+						image_list = append(image_list, imageFilename)
+					}
 					break
 				}
 			}
 		}
 		util.SaveBuildHistory(history)
+
+		if compressFlag {
+			util.CompressImageList(image_list, currentProject, configuration)
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(buildCmd)
-	rootCmd.PersistentFlags().BoolP("all", "a", false, "Build All Child Projects")
+	buildCmd.PersistentFlags().BoolP("all", "a", false, "Build All Child Projects")
+	buildCmd.PersistentFlags().BoolP("compress", "c", false, "Compress the image into a tar file")
 }

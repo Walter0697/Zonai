@@ -49,6 +49,6 @@ var setupCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(setupCmd)
-	rootCmd.PersistentFlags().StringP("output-image-path", "o", "", "Output Image Path")
-	rootCmd.PersistentFlags().StringP("docker-build-command", "d", "", "Docker Build Command")
+	setupCmd.PersistentFlags().StringP("output-image-path", "o", "", "Output Image Path")
+	setupCmd.PersistentFlags().StringP("docker-build-command", "d", "", "Docker Build Command")
 }

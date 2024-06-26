@@ -14,6 +14,7 @@ const (
 	ProjectConfiguration = "project_configuration.json"
 	BuildHistory         = "build_history.json"
 	ProjectList          = "project_list.json"
+	DeploymentList       = "deployment_list.json"
 
 	// configuration default
 	DefaultDockerBuildCommand = "docker build -t"
@@ -53,6 +54,14 @@ func ReadProjectList() model.ProjectList {
 	return projectList
 }
 
+func ReadDeploymentList() model.ProjectList {
+	folderPath := getFilePath()
+
+	filePath := path.Join(folderPath, DeploymentList)
+	deploymentList := LoadJsonFile[model.ProjectList](filePath)
+	return deploymentList
+}
+
 // end read file
 
 // begin save file
@@ -75,6 +84,13 @@ func SaveProjectList(projectList model.ProjectList) {
 
 	filePath := path.Join(folderPath, ProjectList)
 	SaveJsonFile(projectList, filePath)
+}
+
+func SaveDeploymentList(deploymentList model.ProjectList) {
+	folderPath := getFilePath()
+
+	filePath := path.Join(folderPath, DeploymentList)
+	SaveJsonFile(deploymentList, filePath)
 }
 
 // end save file
@@ -105,11 +121,19 @@ func InitializeFolder() {
 
 	projectListFolder := path.Join(folderPath, ProjectList)
 	if _, err := os.Stat(projectListFolder); errors.Is(err, os.ErrNotExist) {
-
 		var defaultProjectList = model.ProjectList{
 			List: []model.ProjectParentModel{},
 		}
 
 		SaveProjectList(defaultProjectList)
+	}
+
+	deploymentListFolder := path.Join(folderPath, DeploymentList)
+	if _, err := os.Stat(deploymentListFolder); errors.Is(err, os.ErrNotExist) {
+		var defaultDeploymentList = model.ProjectList{
+			List: []model.ProjectParentModel{},
+		}
+
+		SaveDeploymentList(defaultDeploymentList)
 	}
 }

@@ -10,9 +10,14 @@ import (
 
 	"github.com/Walter0697/zonai/model"
 	"github.com/briandowns/spinner"
+	"github.com/fatih/color"
 )
 
-func BuildProject(parent *model.ProjectParentModel, child *model.ProjectChildModel, configuration *model.ProjectConfigurationModel, imageTag string) error {
+func BuildProject(parent *model.ProjectParentModel, child *model.ProjectChildModel, configuration *model.ProjectConfigurationModel, imageTag string) string {
+	if configuration.OutputImagePath == "" {
+		return ""
+	}
+
 	cmdList := []string{}
 	buildCommandList := strings.Split(configuration.DockerBuildCommand, " ")
 	for index, command := range buildCommandList {
@@ -46,7 +51,8 @@ func BuildProject(parent *model.ProjectParentModel, child *model.ProjectChildMod
 	cmd.Wait()
 	s.Stop()
 
-	fmt.Println("Image built successfully with tag: " + fullImageName)
+	imageNameDisplay := color.YellowString(fullImageName)
+	fmt.Println("Image built successfully with tag: " + imageNameDisplay)
 
 	// saving into local image
 	outputName := parent.ProjectName + "_" + child.ProjectName + "_" + imageTag + ".tar"
@@ -70,9 +76,10 @@ func BuildProject(parent *model.ProjectParentModel, child *model.ProjectChildMod
 	cmd.Wait()
 	s2.Stop()
 
-	fmt.Println("Image saved successfully with name: " + outputName)
+	savedImageDisplay := color.YellowString(outputName)
+	fmt.Println("Image saved successfully with name: " + savedImageDisplay)
 
-	return nil
+	return outputName
 }
 
 func GetImageName(parent *model.ProjectParentModel, child *model.ProjectChildModel) string {
