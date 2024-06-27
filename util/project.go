@@ -119,3 +119,63 @@ func AddProject(projectList model.ProjectList, projectName, childName, projectPa
 
 	return projectList
 }
+
+func RemoveProject(projectList model.ProjectList, parentName, childName string) model.ProjectList {
+	parentIndex := -1
+	var parentProject *model.ProjectParentModel
+	for i, project := range projectList.List {
+		if project.ProjectName == parentName {
+			parentIndex = i
+			parentProject = &project
+			break
+		}
+	}
+
+	if parentIndex == -1 {
+		color.Red("--> Parent Project " + parentName + " does not exist")
+		return projectList
+	}
+
+	childIndex := -1
+	for i, child := range parentProject.List {
+		if child.ProjectName == childName {
+			childIndex = i
+			break
+		}
+	}
+
+	if childIndex == -1 {
+		color.Red("--> Child Project " + childName + " does not exist")
+		return projectList
+	}
+
+	parentProject.List = append(parentProject.List[:childIndex], parentProject.List[childIndex+1:]...)
+	projectList.List[parentIndex] = *parentProject
+
+	if len(parentProject.List) == 0 {
+		projectList.List = append(projectList.List[:parentIndex], projectList.List[parentIndex+1:]...)
+	}
+
+	color.Cyan("--> Removed Child Project " + childName)
+	return projectList
+}
+
+func RemoveWholeParentProject(projectList model.ProjectList, parentName string) model.ProjectList {
+	parentIndex := -1
+	for i, project := range projectList.List {
+		if project.ProjectName == parentName {
+			parentIndex = i
+			break
+		}
+	}
+
+	if parentIndex == -1 {
+		color.Red("--> Parent Project " + parentName + " does not exist")
+		return projectList
+	}
+
+	projectList.List = append(projectList.List[:parentIndex], projectList.List[parentIndex+1:]...)
+
+	color.Cyan("--> Removed Parent Project " + parentName)
+	return projectList
+}
