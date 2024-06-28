@@ -21,6 +21,7 @@ var listCmd = &cobra.Command{
 		allFlag, _ := cmd.Flags().GetBool("all")
 
 		if allFlag {
+			util.DrawTitle()
 			util.ListProject()
 			util.ListDeployment()
 			return
@@ -35,6 +36,8 @@ var listCmd = &cobra.Command{
 			color.Red("--> Please provide a valid type: [project | deployment]")
 			os.Exit(1)
 		}
+
+		util.DrawTitle()
 
 		if args[0] == "project" {
 			util.ListProject()

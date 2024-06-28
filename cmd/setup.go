@@ -22,12 +22,14 @@ var setupCmd = &cobra.Command{
 	zonai setup --output-image-path=/path/to/image
 	zonai setup -d "docker build -t"
 	zonai setup --docker-build-command="docker build -t"
+	zonai setup -e /path/to/environment
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		outputImagePath := cmd.Flags().Lookup("output-image-path").Value
 		dockerBuildCommand := cmd.Flags().Lookup("docker-build-command").Value
-		if outputImagePath.String() == "" && dockerBuildCommand.String() == "" {
-			color.Red("--> Please provide at least one flag: output-image-path or docker-build-command")
+		environmentPath := cmd.Flags().Lookup("environment-path").Value
+		if outputImagePath.String() == "" && dockerBuildCommand.String() == "" && environmentPath.String() == "" {
+			color.Red("--> Please provide at least one flag: output-image-path or docker-build-command or environment-path")
 			os.Exit(1)
 		}
 
@@ -42,6 +44,13 @@ var setupCmd = &cobra.Command{
 			color.Cyan("Set up DockerBuildCommand...")
 		}
 
+		if environmentPath.String() != "" {
+			configuration.EnviromentPath = environmentPath.String()
+			color.Cyan("Set up EnvironmentPath...")
+		}
+
+		util.DrawTitle()
+
 		util.SaveConfiguration(configuration)
 		color.Cyan("Done!")
 	},
@@ -51,4 +60,5 @@ func init() {
 	rootCmd.AddCommand(setupCmd)
 	setupCmd.PersistentFlags().StringP("output-image-path", "o", "", "Output Image Path")
 	setupCmd.PersistentFlags().StringP("docker-build-command", "d", "", "Docker Build Command")
+	setupCmd.PersistentFlags().StringP("environment-path", "e", "", "Environment Path")
 }

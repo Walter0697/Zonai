@@ -4,11 +4,9 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"time"
 
-	"github.com/Walter0697/zonai/model"
 	"github.com/Walter0697/zonai/util"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -26,6 +24,11 @@ var buildCmd = &cobra.Command{
 	zonai build POSSystem -a -c
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
+		if !util.IsDockerRunning() {
+			color.Red("--> Docker is not running")
+			os.Exit(1)
+		}
+
 		projectName := args[0]
 		if projectName == "" {
 			color.Red("--> Please provide a project name")
@@ -38,8 +41,12 @@ var buildCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		util.DrawTitle()
+
 		allFlag, _ := cmd.Flags().GetBool("all")
 		compressFlag, _ := cmd.Flags().GetBool("compress")
+		wholeFlag, _ := cmd.Flags().GetBool("whole")
+
 		buildFlags := []string{}
 		if allFlag {
 			buildFlags = util.GetAllProjectFlags(currentProject)
@@ -50,51 +57,15 @@ var buildCmd = &cobra.Command{
 		configuration := util.ReadConfiguration()
 		history := util.ReadBuildHistory()
 		now := time.Now().Format("2006-01-02")
-		image_list := []string{}
-		for _, projects := range currentProject.List {
-			for _, flag := range buildFlags {
-				if projects.Flag == flag {
-					imageName := util.GetImageName(currentProject, &projects)
-					version := 1
-					found := false
-					for hindex, h := range history.List {
-						if h.ImageName == imageName {
-							if h.BuildDate == now {
-								version = h.BuildVersion + 1
-								h.BuildVersion = version
-							} else {
-								version = 1
-								h.BuildVersion = version
-								h.BuildDate = now
-							}
-							found = true
-							history.List[hindex] = h
-							break
-						}
-					}
-					if !found {
-						history.List = append(history.List, model.BuildItem{
-							ImageName:    imageName,
-							BuildDate:    now,
-							BuildVersion: 1,
-						})
-					}
-					imageTag := now
-					if version != 1 {
-						imageTag = imageTag + "-" + fmt.Sprintf("%d", version)
-					}
-					imageFilename := util.BuildProject(currentProject, &projects, &configuration, imageTag)
-					if imageFilename != "" {
-						image_list = append(image_list, imageFilename)
-					}
-					break
-				}
-			}
-		}
-		util.SaveBuildHistory(history)
 
-		if compressFlag {
-			util.CompressImageList(image_list, currentProject, configuration)
+		if wholeFlag {
+			env_list := util.GetAllEnvironments(&configuration, currentProject)
+			for _, env := range env_list {
+				util.BuildProjectWithImageList(currentProject, buildFlags, &configuration, &history, now, compressFlag, env)
+			}
+		} else {
+			currentEnvironment := configuration.CurrentEnvironment
+			util.BuildProjectWithImageList(currentProject, buildFlags, &configuration, &history, now, compressFlag, currentEnvironment)
 		}
 	},
 }
@@ -103,4 +74,5 @@ func init() {
 	rootCmd.AddCommand(buildCmd)
 	buildCmd.PersistentFlags().BoolP("all", "a", false, "Build All Child Projects")
 	buildCmd.PersistentFlags().BoolP("compress", "c", false, "Compress the image into a tar file")
+	buildCmd.PersistentFlags().BoolP("whole", "w", false, "Whole Project with all environments")
 }

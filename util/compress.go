@@ -13,13 +13,17 @@ import (
 	"github.com/fatih/color"
 )
 
-func CompressImageList(image_list []string, parent *model.ProjectParentModel, configuration model.ProjectConfigurationModel) {
+func CompressImageList(image_list []string, parent *model.ProjectParentModel, configuration *model.ProjectConfigurationModel, currentEnvironment string) {
 	s := spinner.New(spinner.CharSets[21], 500*time.Millisecond)
 	s.Suffix = " Compressing images..."
 	s.Start()
 
 	now := time.Now().Format("2006-01-02_15_04_05")
-	tarResultFile := path.Join(configuration.OutputImagePath, parent.ProjectName+"_"+now+".gz")
+	tarResultFile := path.Join(configuration.OutputImagePath, parent.ProjectName+"_"+now)
+	if currentEnvironment != "" {
+		tarResultFile = tarResultFile + "_" + currentEnvironment
+	}
+	tarResultFile = tarResultFile + ".tar"
 
 	targetFile, err := os.Create(tarResultFile)
 	if err != nil {

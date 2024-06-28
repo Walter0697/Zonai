@@ -38,6 +38,9 @@ var addCmd = &cobra.Command{
 			color.Red("--> Please provide all arguments: [project name] [child name] [project path]")
 			os.Exit(1)
 		}
+
+		util.DrawTitle()
+
 		if args[0] == "project" {
 			projectList := util.ReadProjectList()
 			updatedList := util.AddProject(projectList, projectName, childName, projectPath)

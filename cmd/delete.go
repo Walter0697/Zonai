@@ -44,6 +44,8 @@ var deleteCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		util.DrawTitle()
+
 		var projectList model.ProjectList
 		var updatedList model.ProjectList
 		if args[0] == "project" {

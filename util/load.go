@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -18,7 +19,6 @@ import (
 )
 
 const (
-	DockerImagesDir = "/.images"
 	ImageContentDir = "/.content"
 )
 
@@ -73,7 +73,12 @@ func LoadAllImagesFromGz(gzPath string) []string {
 	s := spinner.New(spinner.CharSets[21], 500*time.Millisecond)
 	s.Suffix = " Extracting gz files..."
 	s.Start()
-	imageListFolder := ExtractCompression(gzPath, DockerImagesDir)
+
+	gzFileInfo := strings.Split(gzPath, ".gz")[0]
+	gzFullPath := strings.Split(gzFileInfo, "/")
+	gzFileName := gzFullPath[len(gzFullPath)-1]
+	dockerImagesDir := "." + gzFileName
+	imageListFolder := ExtractCompression(gzPath, dockerImagesDir)
 	s.Stop()
 
 	// check all files in imagelist folder
@@ -98,8 +103,11 @@ func LoadAllImagesFromGz(gzPath string) []string {
 	s2.Stop()
 
 	for _, image := range imagePathList {
+		imageInfo := strings.Split(image, "/")
+		imageName := imageInfo[len(imageInfo)-1]
+
 		sLoad := spinner.New(spinner.CharSets[43], 500*time.Millisecond)
-		sLoad.Suffix = " Loading " + image + "..."
+		sLoad.Suffix = " Loading " + imageName + "..."
 		sLoad.Start()
 		dockerCmd := exec.Command("docker", "load", "-i", image)
 		stdout, _ := dockerCmd.StdoutPipe()
@@ -115,7 +123,7 @@ func LoadAllImagesFromGz(gzPath string) []string {
 		dockerCmd.Wait()
 		sLoad.Stop()
 
-		imageNameDisplay := color.YellowString(image)
+		imageNameDisplay := color.YellowString(imageName)
 		fmt.Println("Image loaded successfully: " + imageNameDisplay)
 	}
 

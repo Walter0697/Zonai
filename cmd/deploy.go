@@ -23,6 +23,11 @@ var deployCmd = &cobra.Command{
 	zonai deploy /path/to/file.gz`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		if !util.IsDockerRunning() {
+			color.Red("--> Docker is not running")
+			os.Exit(1)
+		}
+
 		filename := args[0]
 		pwd, err := os.Getwd()
 		currentFilename := path.Join(pwd, filename)
@@ -34,6 +39,8 @@ var deployCmd = &cobra.Command{
 			color.Red("File must be a .gz file")
 			return
 		}
+
+		util.DrawTitle()
 
 		// check if the file exists
 		if _, err := os.Stat(currentFilename); os.IsNotExist(err) {
