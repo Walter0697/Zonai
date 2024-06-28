@@ -19,13 +19,13 @@ func CompressImageList(image_list []string, parent *model.ProjectParentModel, co
 	s.Start()
 
 	now := time.Now().Format("2006-01-02_15_04_05")
-	tarResultFile := path.Join(configuration.OutputImagePath, parent.ProjectName+"_"+now)
+	gzResultFile := path.Join(configuration.OutputImagePath, parent.ProjectName+"_"+now)
 	if currentEnvironment != "" {
-		tarResultFile = tarResultFile + "_" + currentEnvironment
+		gzResultFile = gzResultFile + "_" + currentEnvironment
 	}
-	tarResultFile = tarResultFile + ".tar"
+	gzResultFile = gzResultFile + ".gz"
 
-	targetFile, err := os.Create(tarResultFile)
+	targetFile, err := os.Create(gzResultFile)
 	if err != nil {
 		panic(err)
 	}
@@ -60,6 +60,6 @@ func CompressImageList(image_list []string, parent *model.ProjectParentModel, co
 	}
 
 	s.Stop()
-	resultFileDisplay := color.YellowString(tarResultFile)
+	resultFileDisplay := color.YellowString(gzResultFile)
 	fmt.Println("Images compressed successfully into file: " + resultFileDisplay)
 }
