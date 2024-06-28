@@ -18,6 +18,11 @@ var deleteCmd = &cobra.Command{
 	Short: "Delete a project or deployment",
 	Long: `Delete a project or deployment. You can delete a project or deployment by providing the parent name.
 	You can also delete all under the parent by using the -a flag`,
+	Example: `
+	zonai delete project POSSystem Backend
+	zonai delete deployment POSSystem Backend
+	zonai delete project POSSystem -a
+	`,
 	Args: cobra.MaximumNArgs(3),
 	Run: func(cmd *cobra.Command, args []string) {
 		allFlags, _ := cmd.Flags().GetBool("all")

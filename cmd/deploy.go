@@ -15,7 +15,7 @@ import (
 
 // deployCmd represents the deploy command
 var deployCmd = &cobra.Command{
-	Use:   "deploy",
+	Use:   "deploy [.gz file path]",
 	Short: "Deploy a project using a compressed .gz file",
 	Long: `Deploy a project using a compressed .gz file. When you built a project by zonai build -c, there will be a .gz file in the output
 	Put the output directly into the server and deploy using this command`,

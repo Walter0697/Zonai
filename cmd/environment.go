@@ -11,11 +11,12 @@ import (
 
 // environmentCmd represents the environment command
 var environmentCmd = &cobra.Command{
-	Use:   "environment",
+	Use:   "environment [environment]",
 	Short: "environment is a command to change the current environment of Zonai.",
 	Long: `Environment is a command to change the current environment of Zonai.
-	If you want see the current configuration, use zonai config.`,
-	Args: cobra.ExactArgs(1),
+	If you want see the current configuration, use 'zonai config'`,
+	Example: `zonai environment development`,
+	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		settingEnv := args[0]
 

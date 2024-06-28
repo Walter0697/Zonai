@@ -31,16 +31,16 @@ func ListData(projectList model.ProjectList) {
 
 func ListProject() {
 	projectList := ReadProjectList()
-	fmt.Println("=============================================")
+	Divider()
 	fmt.Println("Project List")
 	ListData(projectList)
-	fmt.Println("=============================================")
+	Divider()
 }
 
 func ListDeployment() {
 	deploymentList := ReadDeploymentList()
-	fmt.Println("=============================================")
+	Divider()
 	fmt.Println("Deployment List")
 	ListData(deploymentList)
-	fmt.Println("=============================================")
+	Divider()
 }

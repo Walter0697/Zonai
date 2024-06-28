@@ -6,6 +6,8 @@ package cmd
 import (
 	"os"
 
+	"github.com/Walter0697/zonai/prompt"
+	"github.com/Walter0697/zonai/util"
 	"github.com/spf13/cobra"
 )
 
@@ -15,6 +17,11 @@ var rootCmd = &cobra.Command{
 	Short: "Zonai helps you dockerize your applications with ease.",
 	Long: `Zonai is a tool that helps you dockerize your applications, from saving a project to loading it into internal server
 	The main idea is to serve system that without internet and heavily relies on internal server, so that they cannot use CI/CD.`,
+	Args: cobra.ExactArgs(0),
+	Run: func(cmd *cobra.Command, args []string) {
+		util.DrawTitle()
+		prompt.Execute()
+	},
 }
 
 func Execute() {

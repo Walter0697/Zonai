@@ -14,14 +14,16 @@ import (
 
 // buildCmd represents the build command
 var buildCmd = &cobra.Command{
-	Use:   "build [project name] (-a | --all) (-c | --compress) [...extra flags for your own project]",
+	Use:   "build [project name] (-a | --all) (-c | --compress) (-w | --whole) [...extra flags for your own project]",
 	Short: "Build your project into a docker image.",
 	Long: `Build your project into a docker image, with different instruction, such as Frontend only, Backend only or Fullstack.
-	You can also select to compress all images after built.`,
+	You can also select to compress all images after built.
+	You can also build the whole project with all environments.`,
 	Example: `
 	zonai build POSSystem -a
 	zonai build POSSystem f b	// f for frontend, b for backend, please use zonai list to see your project flag
-	zonai build POSSystem -a -c
+	zonai build POSSystem -ac
+	zonai build POSSystem -wc f
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if !util.IsDockerRunning() {

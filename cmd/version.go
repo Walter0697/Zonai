@@ -4,8 +4,7 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/Walter0697/zonai/util"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +15,7 @@ var versionCmd = &cobra.Command{
 	Long:  `Check the current version of Zonai. You can check the version of Zonai to see if you are using the latest version or not.`,
 	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Zonai version v0.1.1")
+		util.ShowVersion()
 	},
 }
 

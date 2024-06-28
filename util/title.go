@@ -1,6 +1,12 @@
 package util
 
-import "github.com/fatih/color"
+import (
+	"fmt"
+
+	"github.com/fatih/color"
+)
+
+const Version = "v0.1.1"
 
 func DrawTitle() {
 
@@ -19,7 +25,7 @@ func DrawTitle() {
 	end7 := color.CyanString("█")
 	end8 := color.YellowString("٩(╹ꇴ ╹๑)۶")
 
-	title := color.BlueString("Zonai")
+	title := color.CyanString("Zonai")
 	titleSeparate := color.YellowString(" ================================ ")
 
 	color.Cyan(`░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░`)
@@ -30,4 +36,12 @@ func DrawTitle() {
 	color.Cyan(`█        ███      ███  ███   ██  ████  ██        ███████` + bike6 + end6)
 	color.Cyan(`██████████████████████████████████████████████████████████` + bike7 + end7)
 	color.Green(`Welcome to ` + title + titleSeparate + end8)
+}
+
+func ShowVersion() {
+	fmt.Println("Zonai version " + Version)
+}
+
+func Divider() {
+	fmt.Println("=============================================")
 }

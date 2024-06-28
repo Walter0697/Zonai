@@ -21,7 +21,7 @@ var configCmd = &cobra.Command{
 		util.DrawTitle()
 
 		configuration := util.ReadConfiguration()
-		fmt.Println("=============================================")
+		util.Divider()
 		fmt.Println("Configuration")
 
 		tw := table.NewWriter()
@@ -33,7 +33,7 @@ var configCmd = &cobra.Command{
 
 		fmt.Println(tw.Render())
 
-		fmt.Println("=============================================")
+		util.Divider()
 	},
 }
 

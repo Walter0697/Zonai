@@ -15,8 +15,13 @@ import (
 var listCmd = &cobra.Command{
 	Use:   "list [project | deployment] (-a | --all)",
 	Short: "List for all your current project ",
-	Long:  `List for all your current project, it will show all your project and their child project.`,
-	Args:  cobra.MaximumNArgs(1),
+	Long:  `List for all your current project, it will show all your project and their child projects.`,
+	Example: `
+	zonai list project
+	zonai list deployment
+	zonai list -a
+	`,
+	Args: cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		allFlag, _ := cmd.Flags().GetBool("all")
 

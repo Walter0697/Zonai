@@ -1,0 +1,4 @@
+package prompt
+
+func ExecuteDeploy() {
+}
