@@ -48,7 +48,8 @@ var deployCmd = &cobra.Command{
 			return
 		}
 
-		loadedImageList := util.LoadAllImagesFromGz(currentFilename)
+		pwd, _ = os.Getwd()
+		loadedImageList := util.LoadAllImagesFromGz(currentFilename, pwd)
 		pathList := []string{}
 		for _, imageTag := range loadedImageList {
 			destination := util.FindComposeAndEdit(imageTag)

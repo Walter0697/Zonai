@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/fatih/color"
+	"github.com/jedib0t/go-pretty/table"
 )
 
 const Version = "v0.1.1"
@@ -40,6 +41,24 @@ func DrawTitle() {
 
 func ShowVersion() {
 	fmt.Println("Zonai version " + Version)
+}
+
+func ShowConfiguration() {
+	configuration := ReadConfiguration()
+	Divider()
+	fmt.Println("Configuration")
+
+	tw := table.NewWriter()
+	tw.AppendHeader(table.Row{"Key", "Value"})
+	tw.AppendRow([]interface{}{"Docker Build Command", configuration.DockerBuildCommand})
+	tw.AppendRow([]interface{}{"Input Image Path", configuration.InputImagePath})
+	tw.AppendRow([]interface{}{"Output Image Path", configuration.OutputImagePath})
+	tw.AppendRow([]interface{}{"Environment Path", configuration.EnviromentPath})
+	tw.AppendRow([]interface{}{"Current Environment", configuration.CurrentEnvironment})
+
+	fmt.Println(tw.Render())
+
+	Divider()
 }
 
 func Divider() {

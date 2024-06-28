@@ -8,6 +8,8 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
+const ExitText = "Thank you for using Zonai! Have a nice day! ٩(╹ꇴ ╹๑)۶"
+
 func Execute() {
 	options := []model.PromptItemModel{
 		{Name: "Deploy", Description: "Deploy a project using a compressed .gz file"},
@@ -56,7 +58,9 @@ func Execute() {
 	case "Version":
 		ExecuteVersion()
 	case "Exit":
-		fmt.Println("Thank you for using Zonai! Have a nice day! ٩(╹ꇴ ╹๑)۶")
+		fmt.Println(ExitText)
 		os.Exit(1)
 	}
+
+	fmt.Println(ExitText)
 }

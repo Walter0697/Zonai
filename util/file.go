@@ -15,6 +15,7 @@ const (
 	BuildHistory         = "build_history.json"
 	ProjectList          = "project_list.json"
 	DeploymentList       = "deployment_list.json"
+	DeploymentHistory    = "deployment_history.json"
 
 	// configuration default
 	DefaultDockerBuildCommand = "docker build -t"
@@ -62,6 +63,14 @@ func ReadDeploymentList() model.ProjectList {
 	return deploymentList
 }
 
+func ReadDeploymentHistory() model.DeploymentHistory {
+	folderPath := getFilePath()
+
+	filePath := path.Join(folderPath, DeploymentHistory)
+	deploymentHistory := LoadJsonFile[model.DeploymentHistory](filePath)
+	return deploymentHistory
+}
+
 // end read file
 
 // begin save file
@@ -91,6 +100,13 @@ func SaveDeploymentList(deploymentList model.ProjectList) {
 
 	filePath := path.Join(folderPath, DeploymentList)
 	SaveJsonFile(deploymentList, filePath)
+}
+
+func SaveDeploymentHistory(deploymentHistory model.DeploymentHistory) {
+	folderPath := getFilePath()
+
+	filePath := path.Join(folderPath, DeploymentHistory)
+	SaveJsonFile(deploymentHistory, filePath)
 }
 
 // end save file

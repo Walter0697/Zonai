@@ -22,13 +22,14 @@ const (
 	ImageContentDir = "/.content"
 )
 
-func ExtractCompression(filename string, dest string) string {
-	pwd, _ := os.Getwd()
-	destination := path.Join(pwd, dest)
+func ExtractCompression(filename string, destination string) string {
 	os.MkdirAll(destination, 0755)
-	data, _ := os.ReadFile(filename)
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		panic(err)
+	}
 	buffer := bytes.NewBuffer(data)
-	err := extract.Tar(context.Background(), buffer, destination, nil)
+	err = extract.Tar(context.Background(), buffer, destination, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -39,8 +40,9 @@ type manifestData struct {
 	RepoTags []string
 }
 
-func ReadDockerTag(imagePath string) string {
-	extractedPath := ExtractCompression(imagePath, ImageContentDir)
+func ReadDockerTag(imagePath string, parentPath string) string {
+	imageContentPath := path.Join(parentPath, ImageContentDir)
+	extractedPath := ExtractCompression(imagePath, imageContentPath)
 	manifestFile, err := os.Open(path.Join(extractedPath, "manifest.json"))
 	if err != nil {
 		panic(err)
@@ -69,16 +71,18 @@ func ReadDockerTag(imagePath string) string {
 	return manifest[0].RepoTags[0]
 }
 
-func LoadAllImagesFromGz(gzPath string) []string {
+func LoadAllImagesFromGz(gzFile string, parentPath string) []string {
 	s := spinner.New(spinner.CharSets[21], 500*time.Millisecond)
 	s.Suffix = " Extracting gz files..."
 	s.Start()
 
-	gzFileInfo := strings.Split(gzPath, ".gz")[0]
+	gzFileInfo := strings.Split(gzFile, ".gz")[0]
 	gzFullPath := strings.Split(gzFileInfo, "/")
 	gzFileName := gzFullPath[len(gzFullPath)-1]
 	dockerImagesDir := "." + gzFileName
-	imageListFolder := ExtractCompression(gzPath, dockerImagesDir)
+
+	dockerImagePath := path.Join(parentPath, dockerImagesDir)
+	imageListFolder := ExtractCompression(gzFile, dockerImagePath)
 	s.Stop()
 
 	// check all files in imagelist folder
@@ -92,7 +96,7 @@ func LoadAllImagesFromGz(gzPath string) []string {
 	imagePathList := []string{}
 	for _, fileInfo := range imageListFiles {
 		imageFile := path.Join(imageListFolder, fileInfo.Name())
-		imageTag := ReadDockerTag(imageFile)
+		imageTag := ReadDockerTag(imageFile, parentPath)
 
 		imagePathList = append(imagePathList, imageFile)
 		imageTagList = append(imageTagList, imageTag)

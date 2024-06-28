@@ -26,10 +26,11 @@ var setupCmd = &cobra.Command{
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		outputImagePath := cmd.Flags().Lookup("output-image-path").Value
+		inputImagePath := cmd.Flags().Lookup("input-image-path").Value
 		dockerBuildCommand := cmd.Flags().Lookup("docker-build-command").Value
 		environmentPath := cmd.Flags().Lookup("environment-path").Value
-		if outputImagePath.String() == "" && dockerBuildCommand.String() == "" && environmentPath.String() == "" {
-			color.Red("--> Please provide at least one flag: output-image-path or docker-build-command or environment-path")
+		if outputImagePath.String() == "" && dockerBuildCommand.String() == "" && environmentPath.String() == "" && inputImagePath.String() == "" {
+			color.Red("--> Please provide at least one flag: output-image-path or docker-build-command or environment-path or input-image-path")
 			os.Exit(1)
 		}
 
@@ -37,6 +38,11 @@ var setupCmd = &cobra.Command{
 		if outputImagePath.String() != "" {
 			configuration.OutputImagePath = outputImagePath.String()
 			color.Cyan("Set up OutputImagePath...")
+		}
+
+		if inputImagePath.String() != "" {
+			configuration.InputImagePath = inputImagePath.String()
+			color.Cyan("Set up InputImagePath...")
 		}
 
 		if dockerBuildCommand.String() != "" {
@@ -59,6 +65,7 @@ var setupCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(setupCmd)
 	setupCmd.PersistentFlags().StringP("output-image-path", "o", "", "Output Image Path")
+	setupCmd.PersistentFlags().StringP("input-image-path", "i", "", "Input Image Path")
 	setupCmd.PersistentFlags().StringP("docker-build-command", "d", "", "Docker Build Command")
 	setupCmd.PersistentFlags().StringP("environment-path", "e", "", "Environment Path")
 }
