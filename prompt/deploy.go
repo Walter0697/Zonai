@@ -44,7 +44,8 @@ func ExecuteDeploy() {
 
 		fileInfo := strings.Split(filename, "_")
 		projectName := fileInfo[0]
-		environment := fileInfo[len(fileInfo)-1]
+		environmentInfo := fileInfo[len(fileInfo)-1]
+		environment := strings.Split(environmentInfo, ".")[0]
 		date := strings.Join(fileInfo[1:len(fileInfo)-1], "_")
 
 		options = append(options, model.DeploymentPromptItemModel{

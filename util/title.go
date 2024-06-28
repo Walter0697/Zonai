@@ -7,10 +7,9 @@ import (
 	"github.com/jedib0t/go-pretty/table"
 )
 
-const Version = "v0.1.1"
+const Version = "v0.2.0"
 
 func DrawTitle() {
-
 	bike2 := color.YellowString(".-.=\\-")
 	bike3 := color.YellowString("(_)=='(_)")
 	bike4 := color.YellowString("(")
@@ -63,4 +62,8 @@ func ShowConfiguration() {
 
 func Divider() {
 	fmt.Println("=============================================")
+}
+
+func DrawBye() {
+	color.Cyan("Thank you for using Zonai! Have a nice day! ٩(╹ꇴ ╹๑)۶")
 }

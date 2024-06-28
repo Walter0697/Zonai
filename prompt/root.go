@@ -1,14 +1,9 @@
 package prompt
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/Walter0697/zonai/model"
 	"github.com/manifoldco/promptui"
 )
-
-const ExitText = "Thank you for using Zonai! Have a nice day! ٩(╹ꇴ ╹๑)۶"
 
 func Execute() {
 	options := []model.PromptItemModel{
@@ -57,10 +52,5 @@ func Execute() {
 		ExecuteCli()
 	case "Version":
 		ExecuteVersion()
-	case "Exit":
-		fmt.Println(ExitText)
-		os.Exit(1)
 	}
-
-	fmt.Println(ExitText)
 }

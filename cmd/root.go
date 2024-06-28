@@ -21,6 +21,7 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		util.DrawTitle()
 		prompt.Execute()
+		util.DrawBye()
 	},
 }
 

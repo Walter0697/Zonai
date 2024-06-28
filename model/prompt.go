@@ -25,6 +25,12 @@ type DeploymentPromptItemModel struct {
 	Action      string
 }
 
+type ProjectPromptItemModel struct {
+	ProjectName string
+	ChildList   string
+	Action      string
+}
+
 func GetSimpleSearcher(options []SimplePromptItemModel) func(string, int) bool {
 	return func(input string, index int) bool {
 		option := options[index]
@@ -94,6 +100,31 @@ func GetDeploymentSelectTemplate(title string) *promptui.SelectTemplates {
 {{ "Project Name:" | faint }}	{{ .ProjectName }}
 {{ "Environment:" | faint }}	{{ .Environment }}
 {{ "Create Date:" | faint }}	{{ .CreateDate }}`,
+	}
+
+	return templates
+}
+
+func GetProjectSearcher(options []ProjectPromptItemModel) func(string, int) bool {
+	return func(input string, index int) bool {
+		option := options[index]
+		name := strings.Replace(strings.ToLower(option.ProjectName), " ", "", -1)
+		input = strings.Replace(strings.ToLower(input), " ", "", -1)
+
+		return strings.Contains(name, input)
+	}
+}
+
+func GetProjectSelectTemplate(title string) *promptui.SelectTemplates {
+	templates := &promptui.SelectTemplates{
+		Label:    "{{ . }}",
+		Active:   "-> {{ .ProjectName | cyan }}",
+		Inactive: "  {{ .ProjectName | cyan }}",
+		Selected: title + ": Selected {{ .ProjectName | cyan }}",
+		Details: `
+--------- Description ----------
+{{ "Project Name:" | faint }}	{{ .ProjectName }}
+{{ "Child List:" | faint }}	{{ .ChildList }}`,
 	}
 
 	return templates
