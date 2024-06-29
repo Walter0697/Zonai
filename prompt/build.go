@@ -215,4 +215,6 @@ func buildProject(project *model.ProjectParentModel, flags []string, compressFla
 		currentEnvironment := configuration.CurrentEnvironment
 		util.BuildProjectWithImageList(project, flags, &configuration, &history, now, compressFlag, currentEnvironment)
 	}
+
+	util.SaveBuildHistory(history)
 }

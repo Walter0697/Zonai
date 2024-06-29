@@ -13,22 +13,24 @@ import (
 
 // listCmd represents the list command
 var listCmd = &cobra.Command{
-	Use:   "list [project | deployment] (-a | --all)",
-	Short: "List for all your current project ",
+	Use:   "list [project | deployment] (-a | --all) (-f | --find <key_word>)",
+	Short: "List for all your current project",
 	Long:  `List for all your current project, it will show all your project and their child projects.`,
 	Example: `
 	zonai list project
 	zonai list deployment
 	zonai list -a
+	zonai list -f POS
 	`,
 	Args: cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		allFlag, _ := cmd.Flags().GetBool("all")
+		findFlag, _ := cmd.Flags().GetString("find")
 
 		if allFlag {
 			util.DrawTitle()
-			util.ListProject()
-			util.ListDeployment()
+			util.ListProject(&findFlag)
+			util.ListDeployment(&findFlag)
 			return
 		}
 
@@ -45,9 +47,9 @@ var listCmd = &cobra.Command{
 		util.DrawTitle()
 
 		if args[0] == "project" {
-			util.ListProject()
+			util.ListProject(&findFlag)
 		} else {
-			util.ListDeployment()
+			util.ListDeployment(&findFlag)
 		}
 	},
 }
@@ -55,4 +57,5 @@ var listCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(listCmd)
 	listCmd.PersistentFlags().BoolP("all", "a", false, "List all components")
+	listCmd.PersistentFlags().StringP("find", "f", "", "Find a project or deployment")
 }

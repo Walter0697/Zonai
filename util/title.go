@@ -7,7 +7,7 @@ import (
 	"github.com/jedib0t/go-pretty/table"
 )
 
-const Version = "v0.2.0"
+const Version = "v0.2.1"
 
 func DrawTitle() {
 	bike2 := color.YellowString(".-.=\\-")
