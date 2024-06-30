@@ -12,6 +12,7 @@ func Execute() {
 		{Name: "Add", Description: "Add a new project or deployment instruction to the list"},
 		{Name: "Delete", Description: "Delete a project or deployment instruction from the list"},
 		{Name: "List", Description: "List all projects and deployment instructions"},
+		{Name: "History", Description: "Show the deployment history"},
 		{Name: "Environment", Description: "Manage the environment settings"},
 		{Name: "Configuration", Description: "Configure the project settings"},
 		{Name: "Command Line Tools", Description: "How to use command line tools"},
@@ -44,6 +45,8 @@ func Execute() {
 		ExecuteDelete()
 	case "List":
 		ExecuteList()
+	case "History":
+		ExecuteHistory()
 	case "Environment":
 		ExecuteEnvironment()
 	case "Configuration":

@@ -1,10 +1,17 @@
 package model
 
 type DeploymentHistory struct {
-	List []DeploymentHistoryModel
+	List []DeploymentItemModel
 }
 
-type DeploymentHistoryModel struct {
+type DeploymentItemModel struct {
+	FileName  string
+	BuildTime string
+	ImageList []DeploymentImageItem
+}
+
+type DeploymentImageItem struct {
+	ImageTag    string
 	ProjectName string
-	History     []string
+	ProjectPath string
 }

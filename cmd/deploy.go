@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"time"
 
+	"github.com/Walter0697/zonai/model"
 	"github.com/Walter0697/zonai/util"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -49,14 +51,28 @@ var deployCmd = &cobra.Command{
 		}
 
 		pwd, _ = os.Getwd()
+
+		now := time.Now().Format("2006-01-02 15:04:05")
+		var deploymentItem model.DeploymentItemModel
+		deploymentItem.FileName = currentFilename
+		deploymentItem.BuildTime = now
+		deploymentItem.ImageList = []model.DeploymentImageItem{}
 		loadedImageList := util.LoadAllImagesFromGz(currentFilename, pwd)
 		pathList := []string{}
 		for _, imageTag := range loadedImageList {
-			destination := util.FindComposeAndEdit(imageTag)
+			destination, imageItem := util.FindComposeAndEdit(imageTag)
 			if destination != "" {
 				pathList = append(pathList, destination)
 			}
+
+			if imageItem != nil {
+				deploymentItem.ImageList = append(deploymentItem.ImageList, *imageItem)
+			}
 		}
+
+		deploymentHistory := util.ReadDeploymentHistory()
+		deploymentHistory.List = append(deploymentHistory.List, deploymentItem)
+		util.SaveDeploymentHistory(deploymentHistory)
 
 		deployInstruction := color.YellowString("docker-compose up -d")
 		fmt.Println("--> To deploy, run " + deployInstruction + " in the following paths")

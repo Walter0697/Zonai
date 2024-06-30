@@ -5,11 +5,12 @@ import (
 	"path"
 	"strings"
 
+	"github.com/Walter0697/zonai/model"
 	"github.com/fatih/color"
 	"gopkg.in/yaml.v2"
 )
 
-func FindComposeAndEdit(imageTag string) string {
+func FindComposeAndEdit(imageTag string) (string, *model.DeploymentImageItem) {
 	deploymentList := ReadDeploymentList()
 	imageInfo := strings.Split(imageTag, ":")
 	imageRepoInfo := strings.Split(imageInfo[0], "/")
@@ -30,14 +31,14 @@ func FindComposeAndEdit(imageTag string) string {
 	if folderPath == "" {
 		imageNameDisplay := color.YellowString(imageTag)
 		color.Red("Deployment for " + imageNameDisplay + " not found")
-		return ""
+		return "", nil
 	}
 
 	dockerComposePath := path.Join(folderPath, "docker-compose.yml")
 	// check if docker compose exists
 	if _, err := os.Stat(dockerComposePath); os.IsNotExist(err) {
 		color.Red("docker-compose.yml not found in " + folderPath)
-		return ""
+		return "", nil
 	}
 
 	// read docker compose
@@ -53,7 +54,7 @@ func FindComposeAndEdit(imageTag string) string {
 
 	if _, ok := dockerCompose["services"]; !ok {
 		color.Red("services not found in docker-compose.yml")
-		return ""
+		return "", nil
 	}
 
 	services := dockerCompose["services"].(map[interface{}]interface{})
@@ -61,14 +62,14 @@ func FindComposeAndEdit(imageTag string) string {
 	if _, ok := services[serviceName]; !ok {
 		imageNameDisplay := color.YellowString(serviceName)
 		color.Red("Service " + imageNameDisplay + " not found in docker-compose.yml")
-		return ""
+		return "", nil
 	}
 
 	currentProject := services[serviceName].(map[interface{}]interface{})
 	if _, ok := currentProject["image"]; !ok {
 		imageNameDisplay := color.YellowString(serviceName)
 		color.Red("image not found in " + imageNameDisplay)
-		return ""
+		return "", nil
 	}
 
 	currentProject["image"] = imageTag
@@ -84,5 +85,10 @@ func FindComposeAndEdit(imageTag string) string {
 		panic(err)
 	}
 
-	return folderPath
+	var deploymentImageItem model.DeploymentImageItem
+	deploymentImageItem.ImageTag = imageTag
+	deploymentImageItem.ProjectPath = folderPath
+	deploymentImageItem.ProjectName = parentName
+
+	return folderPath, &deploymentImageItem
 }

@@ -152,4 +152,13 @@ func InitializeFolder() {
 
 		SaveDeploymentList(defaultDeploymentList)
 	}
+
+	deploymentHistoryFolder := path.Join(folderPath, DeploymentHistory)
+	if _, err := os.Stat(deploymentHistoryFolder); errors.Is(err, os.ErrNotExist) {
+		var defaultDeploymentHistory = model.DeploymentHistory{
+			List: []model.DeploymentItemModel{},
+		}
+
+		SaveDeploymentHistory(defaultDeploymentHistory)
+	}
 }
