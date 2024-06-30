@@ -24,6 +24,14 @@ var setupCmd = &cobra.Command{
 	zonai setup --docker-build-command="docker build -t"
 	zonai setup -e /path/to/environment
 	`,
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args)%2 == 0 {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		argumentChoice := []string{"-o", "--output-image-path", "-i", "--input-image-path", "-d", "--docker-build-command", "-e", "--environment-path"}
+		return argumentChoice, cobra.ShellCompDirectiveNoFileComp
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		outputImagePath := cmd.Flags().Lookup("output-image-path").Value
 		inputImagePath := cmd.Flags().Lookup("input-image-path").Value

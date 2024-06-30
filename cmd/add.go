@@ -5,7 +5,9 @@ package cmd
 
 import (
 	"os"
+	"strings"
 
+	"github.com/Walter0697/zonai/model"
 	"github.com/Walter0697/zonai/util"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -24,6 +26,30 @@ var addCmd = &cobra.Command{
 	zonai add project POSSystem Frontend /path/to/POSSystem/Frontend
 	zonai add deployment POSSystem Backend /path/to/POSSystem/Backend
 	`,
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) == 0 {
+			return []string{"project", "deployment"}, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		var list model.ProjectList
+		if len(args) == 1 {
+			if args[0] == "project" {
+				list = util.ReadProjectList()
+			} else {
+				list = util.ReadDeploymentList()
+			}
+
+			var outputs []string
+			for _, project := range list.List {
+				if toComplete == "" || strings.Contains(project.ProjectName, toComplete) {
+					outputs = append(outputs, project.ProjectName)
+				}
+			}
+			return outputs, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if args[0] != "project" && args[0] != "deployment" {
 			color.Red("--> Please provide a valid type: [project | deployment]")

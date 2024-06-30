@@ -96,5 +96,16 @@ Then, you can deploy the project, usually we will deploy most version  using the
 
 After that, to ensure everythings work, we won't deploy the project for you, you will still need to run `docker-compose up -d` since we want you to check to make sure things work perfectly.
 
+## Completion
+
+If you want to add completion for your shell, use the following commmand
+
+`zonai completion zsh > /tmp/completion`
+`source /tmp/completion`
+
+For available shell, you can use the following command
+
+`zonai completion`
+
 ## Author
 Walter Cheng

@@ -13,7 +13,7 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "Zonai",
+	Use:   "zonai",
 	Short: "Zonai helps you dockerize your applications with ease.",
 	Long: `Zonai is a tool that helps you dockerize your applications, from saving a project to loading it into internal server
 	The main idea is to serve system that without internet and heavily relies on internal server, so that they cannot use CI/CD.`,

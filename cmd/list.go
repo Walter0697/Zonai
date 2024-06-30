@@ -22,7 +22,8 @@ var listCmd = &cobra.Command{
 	zonai list -a
 	zonai list -f POS
 	`,
-	Args: cobra.MaximumNArgs(1),
+	Args:      cobra.MaximumNArgs(1),
+	ValidArgs: []string{"project", "deployment"},
 	Run: func(cmd *cobra.Command, args []string) {
 		allFlag, _ := cmd.Flags().GetBool("all")
 		findFlag, _ := cmd.Flags().GetString("find")

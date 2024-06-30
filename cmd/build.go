@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"os"
+	"strings"
 	"time"
 
 	"github.com/Walter0697/zonai/util"
@@ -25,6 +26,52 @@ var buildCmd = &cobra.Command{
 	zonai build POSSystem -ac
 	zonai build POSSystem -wc f
 	`,
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		projectList := util.ReadProjectList()
+		if len(args) == 0 {
+			var outputs []string
+			for _, project := range projectList.List {
+				if toComplete == "" || strings.Contains(project.ProjectName, toComplete) {
+					outputs = append(outputs, project.ProjectName)
+				}
+			}
+			return outputs, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		if len(args) >= 1 {
+			options := []string{"-a", "--all", "-c", "--compress", "-w", "--whole"}
+			for _, project := range projectList.List {
+				if project.ProjectName == args[0] {
+					for _, child := range project.List {
+						options = append(options, child.Flag)
+					}
+				}
+			}
+
+			filtered := []string{}
+			for _, option := range options {
+				exists := false
+				for argIndex, arg := range args {
+					if argIndex == 0 {
+						continue
+					}
+
+					if arg == option {
+						exists = true
+						break
+					}
+				}
+
+				if !exists {
+					filtered = append(filtered, option)
+				}
+			}
+
+			return filtered, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if !util.IsDockerRunning() {
 			color.Red("--> Docker is not running")

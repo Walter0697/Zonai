@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"os"
+	"strings"
 
 	"github.com/Walter0697/zonai/model"
 	"github.com/Walter0697/zonai/util"
@@ -24,6 +25,56 @@ var deleteCmd = &cobra.Command{
 	zonai delete project POSSystem -a
 	`,
 	Args: cobra.MaximumNArgs(3),
+	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		if len(args) == 0 {
+			return []string{"project", "deployment"}, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		var list model.ProjectList
+		if len(args) >= 1 {
+			if args[0] == "project" {
+				list = util.ReadProjectList()
+			} else {
+				list = util.ReadDeploymentList()
+			}
+		}
+
+		if len(args) == 1 {
+			var outputs []string
+			for _, project := range list.List {
+				if toComplete == "" || strings.Contains(project.ProjectName, toComplete) {
+					outputs = append(outputs, project.ProjectName)
+				}
+			}
+			return outputs, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		if len(args) == 2 {
+			parentProjectName := args[1]
+			var currentParent *model.ProjectParentModel
+			for _, project := range list.List {
+				if project.ProjectName == parentProjectName {
+					currentParent = &project
+					break
+				}
+			}
+
+			if currentParent == nil {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+
+			var outputs []string
+			for _, child := range currentParent.List {
+				if toComplete == "" || strings.Contains(child.ProjectName, toComplete) {
+					outputs = append(outputs, child.ProjectName)
+				}
+			}
+			outputs = append(outputs, "-a")
+			return outputs, cobra.ShellCompDirectiveNoFileComp
+		}
+
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		allFlags, _ := cmd.Flags().GetBool("all")
 
