@@ -172,6 +172,11 @@ func GetImageName(parent *model.ProjectParentModel, child *model.ProjectChildMod
 }
 
 func copyFile(src, dst string) (err error) {
+	// ignore when src does not exist
+	if _, err := os.Stat(src); os.IsNotExist(err) {
+		return nil
+	}
+
 	in, err := os.Open(src)
 	if err != nil {
 		return

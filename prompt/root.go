@@ -13,6 +13,7 @@ func Execute() {
 		{Name: "Delete", Description: "Delete a project or deployment instruction from the list"},
 		{Name: "List", Description: "List all projects and deployment instructions"},
 		{Name: "History", Description: "Show the deployment history"},
+		{Name: "Clean Up", Description: "Clean up all the unzipped files, uncompressed images in input and output folder"},
 		{Name: "Environment", Description: "Manage the environment settings"},
 		{Name: "Configuration", Description: "Configure the project settings"},
 		{Name: "Command Line Tools", Description: "How to use command line tools"},
@@ -47,6 +48,8 @@ func Execute() {
 		ExecuteList()
 	case "History":
 		ExecuteHistory()
+	case "Clean Up":
+		ExecuteCleanup()
 	case "Environment":
 		ExecuteEnvironment()
 	case "Configuration":

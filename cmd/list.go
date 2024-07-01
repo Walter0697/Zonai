@@ -28,10 +28,15 @@ var listCmd = &cobra.Command{
 		allFlag, _ := cmd.Flags().GetBool("all")
 		findFlag, _ := cmd.Flags().GetString("find")
 
+		var searchKey *string
+		if findFlag != "" {
+			searchKey = &findFlag
+		}
+
 		if allFlag {
 			util.DrawTitle()
-			util.ListProject(&findFlag)
-			util.ListDeployment(&findFlag)
+			util.ListProject(searchKey)
+			util.ListDeployment(searchKey)
 			return
 		}
 
@@ -48,9 +53,9 @@ var listCmd = &cobra.Command{
 		util.DrawTitle()
 
 		if args[0] == "project" {
-			util.ListProject(&findFlag)
+			util.ListProject(searchKey)
 		} else {
-			util.ListDeployment(&findFlag)
+			util.ListDeployment(searchKey)
 		}
 	},
 }
