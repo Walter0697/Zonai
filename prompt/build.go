@@ -169,9 +169,19 @@ func executeCompress(project *model.ProjectParentModel, flags []string) {
 func executeEnvironment(project *model.ProjectParentModel, flags []string, compressFlag bool) {
 	configuration := util.ReadConfiguration()
 	currentEnvironment := configuration.CurrentEnvironment
+
+	env_list := util.GetAllEnvironments(&configuration, project)
+	allEnvDisplay := ""
+	if len(env_list) > 0 {
+		totalNumStr := fmt.Sprintf("(%d environment(s) in total)", len(env_list))
+		allEnvDisplay = color.YellowString(totalNumStr)
+	} else {
+		allEnvDisplay = color.YellowString("(No environment found, will use current environment)")
+	}
 	envDisplay := color.YellowString("(" + currentEnvironment + ")")
+
 	options := []model.SimplePromptItemModel{
-		{Name: "Build with all environments", Action: "All"},
+		{Name: "Build with all environment(s) " + allEnvDisplay, Action: "All"},
 		{Name: "Build with current environment " + envDisplay, Action: "Current"},
 		{Name: "Back", Action: "Back"},
 	}
@@ -208,9 +218,16 @@ func buildProject(project *model.ProjectParentModel, flags []string, compressFla
 
 	if wholeFlag {
 		env_list := util.GetAllEnvironments(&configuration, project)
-		for _, env := range env_list {
-			util.BuildProjectWithImageList(project, flags, &configuration, &history, now, compressFlag, env)
+		if len(env_list) == 0 {
+			// if there is no environment, build with current environment
+			currentEnvironment := configuration.CurrentEnvironment
+			util.BuildProjectWithImageList(project, flags, &configuration, &history, now, compressFlag, currentEnvironment)
+		} else {
+			for _, env := range env_list {
+				util.BuildProjectWithImageList(project, flags, &configuration, &history, now, compressFlag, env)
+			}
 		}
+
 	} else {
 		currentEnvironment := configuration.CurrentEnvironment
 		util.BuildProjectWithImageList(project, flags, &configuration, &history, now, compressFlag, currentEnvironment)
