@@ -24,6 +24,8 @@ func ExecuteDeploy() {
 		return
 	}
 
+	historyItem := util.ReadDeploymentHistory()
+
 	inputImagePath := configuration.InputImagePath
 	// browse all files in the input image path
 	files, err := os.ReadDir(inputImagePath)
@@ -48,13 +50,20 @@ func ExecuteDeploy() {
 		environment := strings.Split(environmentInfo, ".")[0]
 		date := strings.Join(fileInfo[1:len(fileInfo)-1], "_")
 
+		history := findHistoryByFilename(historyItem, filename)
+		previousDeploy := ""
+		if history != nil {
+			previousDeploy = "Previous Deployed At: " + history.BuildTime
+		}
+
 		options = append(options, model.DeploymentPromptItemModel{
-			Filename:    filename,
-			ProjectName: projectName,
-			Environment: environment,
-			CreateDate:  date,
-			LatestText:  "",
-			Action:      "",
+			Filename:           filename,
+			ProjectName:        projectName,
+			Environment:        environment,
+			CreateDate:         date,
+			PreviousDeployedAt: previousDeploy,
+			LatestText:         "",
+			Action:             "",
 		})
 	}
 
@@ -129,4 +138,13 @@ func ExecuteDeploy() {
 		color.Green("cd " + path)
 	}
 
+}
+
+func findHistoryByFilename(history model.DeploymentHistory, filename string) *model.DeploymentItemModel {
+	for i := range history.List {
+		if history.List[i].FileName == filename {
+			return &history.List[i]
+		}
+	}
+	return nil
 }

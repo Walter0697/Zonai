@@ -17,12 +17,13 @@ type SimplePromptItemModel struct {
 }
 
 type DeploymentPromptItemModel struct {
-	Filename    string
-	ProjectName string
-	CreateDate  string
-	Environment string
-	LatestText  string
-	Action      string
+	Filename           string
+	ProjectName        string
+	CreateDate         string
+	PreviousDeployedAt string
+	Environment        string
+	LatestText         string
+	Action             string
 }
 
 type ProjectPromptItemModel struct {
@@ -91,8 +92,8 @@ func GetDeploymentSearcher(options []DeploymentPromptItemModel) func(string, int
 func GetDeploymentSelectTemplate(title string) *promptui.SelectTemplates {
 	templates := &promptui.SelectTemplates{
 		Label:    "{{ . }}",
-		Active:   "-> {{ .Filename | cyan }} {{ .LatestText | yellow }}",
-		Inactive: "  {{ .Filename | cyan }} {{ .LatestText | yellow }}",
+		Active:   "-> {{ .Filename | cyan }} {{ .LatestText | yellow }} {{ .PreviousDeployedAt | green }}",
+		Inactive: "  {{ .Filename | cyan }} {{ .LatestText | yellow }} {{ .PreviousDeployedAt | green }}",
 		Selected: title + ": Selected {{ .Filename | cyan }}",
 		Details: `
 --------- Description ----------
