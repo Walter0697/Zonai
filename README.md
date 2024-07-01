@@ -16,6 +16,16 @@ This tool will help you to dockerize with `Dockerfile` automatically, or deploy 
 
 _If you are using CI/CD, you probably don't nee this tool_
 
+## Preview
+
+You can either use prompt mode or command line mode. Here is the preview for both
+
+#### Prompt Mode
+![Prompt](https://github.com/Walter0697/Zonai/blob/fan/github/prompt.gif?raw=true)
+
+#### Command Line Mode
+![Cmd](https://github.com/Walter0697/Zonai/fan/github/cmd.gif?raw=true)
+
 ## Installation
 To check which version of OS you need, use the following command
 ```bash
