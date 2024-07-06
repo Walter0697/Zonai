@@ -78,6 +78,11 @@ var buildCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		if len(args) == 0 {
+			color.Red("--> Please provide a project name")
+			os.Exit(1)
+		}
+
 		projectName := args[0]
 		if projectName == "" {
 			color.Red("--> Please provide a project name")

@@ -26,9 +26,10 @@ var cleanupCmd = &cobra.Command{
 	ValidArgs: []string{"input", "output", "-a", "--all"},
 	Run: func(cmd *cobra.Command, args []string) {
 		allFlags, _ := cmd.Flags().GetBool("all")
+		yesFlag, _ := cmd.Flags().GetBool("yes")
 
 		if allFlags {
-			util.CleanupAll()
+			util.CleanupAll(yesFlag)
 			return
 		}
 
@@ -43,9 +44,9 @@ var cleanupCmd = &cobra.Command{
 		}
 
 		if args[0] == "input" {
-			util.CleanupInputFolder()
+			util.CleanupInputFolder(yesFlag)
 		} else {
-			util.CleanupOutputFolder()
+			util.CleanupOutputFolder(yesFlag)
 		}
 	},
 }
@@ -53,4 +54,5 @@ var cleanupCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(cleanupCmd)
 	cleanupCmd.Flags().BoolP("all", "a", false, "Clean up all the unzipped files, uncompressed images in input and output folder")
+	cleanupCmd.Flags().BoolP("yes", "y", false, "Skip the confirmation message")
 }

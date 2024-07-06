@@ -31,24 +31,32 @@ func ShowWarning(display []string) bool {
 	return strings.ToLower(result) == "y"
 }
 
-func CleanupAll() {
-	if !ShowWarning([]string{inputWarning, outputWarning}) {
-		return
+func CleanupAll(autoYes bool) {
+	if !autoYes {
+		if !ShowWarning([]string{inputWarning, outputWarning}) {
+			return
+		}
 	}
+
 	cleanupOutput()
 	cleanupInput()
 }
 
-func CleanupOutputFolder() {
-	if !ShowWarning([]string{outputWarning}) {
-		return
+func CleanupOutputFolder(autoYes bool) {
+	if !autoYes {
+		if !ShowWarning([]string{outputWarning}) {
+			return
+		}
 	}
+
 	cleanupOutput()
 }
 
-func CleanupInputFolder() {
-	if !ShowWarning([]string{inputWarning}) {
-		return
+func CleanupInputFolder(autoYes bool) {
+	if !autoYes {
+		if !ShowWarning([]string{inputWarning}) {
+			return
+		}
 	}
 	cleanupInput()
 }

@@ -31,11 +31,11 @@ func ExecuteCleanup() {
 
 	switch action {
 	case "All":
-		util.CleanupAll()
+		util.CleanupAll(false)
 	case "Input":
-		util.CleanupInputFolder()
+		util.CleanupInputFolder(false)
 	case "Output":
-		util.CleanupOutputFolder()
+		util.CleanupOutputFolder(false)
 	case "Back":
 		Execute()
 	}
