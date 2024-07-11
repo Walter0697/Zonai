@@ -1,7 +1,9 @@
 package util
 
 import (
+	"errors"
 	"os/exec"
+	"strings"
 )
 
 func IsDockerRunning() bool {
@@ -26,4 +28,28 @@ func DockerPs(projectName string, allFlag bool) (string, error) {
 	}
 
 	return string(result), nil
+}
+
+func GetContainerId(projectName string, childName string) (string, string, error) {
+	output, _ := DockerPs(projectName, false)
+	targetName := projectName + "/" + childName
+
+	outputList := strings.Split(output, "\n")
+	for index, line := range outputList {
+		if index == 0 {
+			// 0 is the header
+			continue
+		}
+		infoSplit := strings.Split(line, "   ")
+		if len(infoSplit) >= 2 {
+			imageName := infoSplit[1]
+			imageInfo := strings.Split(imageName, ":")[0]
+			if imageInfo == targetName {
+				containerId := infoSplit[0]
+				return containerId, targetName, nil
+			}
+		}
+	}
+
+	return "", targetName, errors.New("No image found")
 }

@@ -2,7 +2,6 @@ package prompt
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/Walter0697/zonai/model"
 	"github.com/Walter0697/zonai/util"
@@ -14,6 +13,7 @@ func ExecuteWrapper() {
 	options := []model.SimplePromptItemModel{
 		{Name: "docker ps", Action: "PS"},
 		{Name: "docker log", Action: "Log"},
+		{Name: "docker exec", Action: "Exec"},
 		{Name: "Back", Action: "Back"},
 	}
 
@@ -36,7 +36,9 @@ func ExecuteWrapper() {
 	case "PS":
 		executeDockerPs()
 	case "Log":
-		executeDockerLog()
+		executeDockerCommand("Docker Log")
+	case "Exec":
+		executeDockerCommand("Docker Exec")
 	case "Back":
 		Execute()
 	}
@@ -65,7 +67,7 @@ func executeDockerPs() {
 	action := options[i].Action
 
 	if action == "Back" {
-		Execute()
+		ExecuteWrapper()
 		return
 	}
 
@@ -79,7 +81,7 @@ func executeDockerPs() {
 	fmt.Println(output)
 }
 
-func executeDockerLog() {
+func executeDockerCommand(commandType string) {
 	deploymentList := util.ReadDeploymentList()
 	options := []model.SimplePromptItemModel{}
 	for _, project := range deploymentList.List {
@@ -88,7 +90,7 @@ func executeDockerLog() {
 	options = append(options, model.SimplePromptItemModel{Name: "Back", Action: "Back"})
 
 	searcher := model.GetSimpleSearcher(options)
-	templates := model.GetSimpleSelectTemplate("Docker Log")
+	templates := model.GetSimpleSelectTemplate(commandType)
 
 	prompt := promptui.Select{
 		Label:     "Which project do you want to see the docker log?",
@@ -102,7 +104,7 @@ func executeDockerLog() {
 	action := options[i].Action
 
 	if action == "Back" {
-		Execute()
+		ExecuteWrapper()
 		return
 	}
 
@@ -122,10 +124,10 @@ func executeDockerLog() {
 		return
 	}
 
-	executeChildDockerLog(currentProject)
+	executeChildDockerLog(currentProject, commandType)
 }
 
-func executeChildDockerLog(project *model.ProjectParentModel) {
+func executeChildDockerLog(project *model.ProjectParentModel, commandType string) {
 	options := []model.SimplePromptItemModel{}
 	for _, child := range project.List {
 		options = append(options, model.SimplePromptItemModel{Name: child.ProjectName, Action: "Log"})
@@ -147,33 +149,21 @@ func executeChildDockerLog(project *model.ProjectParentModel) {
 	action := options[i].Action
 
 	if action == "Back" {
-		Execute()
+		executeDockerCommand(commandType)
 		return
 	}
 
 	childName := options[i].Name
-	output, _ := util.DockerPs(project.ProjectName, false)
-	targetName := project.ProjectName + "/" + childName
-
-	outputList := strings.Split(output, "\n")
-	for index, line := range outputList {
-		if index == 0 {
-			// 0 is the header
-			continue
+	containerId, targetName, err := util.GetContainerId(project.ProjectName, childName)
+	if err == nil {
+		fmt.Println("Found image : " + color.GreenString(targetName))
+		fmt.Println("Please use the following command to see the log")
+		if commandType == "Docker Log" {
+			color.Yellow("docker logs " + containerId)
+		} else if commandType == "Docker Exec" {
+			color.Yellow("docker exec -it " + containerId + " sh")
 		}
-		infoSplit := strings.Split(line, "   ")
-		if len(infoSplit) >= 2 {
-			imageName := infoSplit[1]
-			imageInfo := strings.Split(imageName, ":")[0]
-			if imageInfo == targetName {
-				fmt.Println("Found image : " + color.GreenString(imageInfo))
-				containerId := infoSplit[0]
-				fmt.Println("Please use the following command to see the log")
-				color.Yellow("docker logs " + containerId)
-
-				return
-			}
-		}
+		return
 	}
 
 	color.Red(targetName + " not found, try to check if it is running")
