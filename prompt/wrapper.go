@@ -2,7 +2,7 @@ package prompt
 
 import (
 	"fmt"
-
+	"strings"
 	"github.com/Walter0697/zonai/model"
 	"github.com/Walter0697/zonai/util"
 	"github.com/fatih/color"
@@ -11,6 +11,7 @@ import (
 
 func ExecuteWrapper() {
 	options := []model.SimplePromptItemModel{
+		{Name: "git checkout", Action: "Git Checkout"},
 		{Name: "docker ps", Action: "PS"},
 		{Name: "docker log", Action: "Log"},
 		{Name: "docker exec", Action: "Exec"},
@@ -36,9 +37,11 @@ func ExecuteWrapper() {
 	case "PS":
 		executeDockerPs()
 	case "Log":
-		executeDockerCommand("Docker Log")
+		executeParentCommand("Docker Log")
 	case "Exec":
-		executeDockerCommand("Docker Exec")
+		executeParentCommand("Docker Exec")
+	case "Git Checkout":
+		executeParentCommand("Git Checkout")
 	case "Back":
 		Execute()
 	}
@@ -81,10 +84,13 @@ func executeDockerPs() {
 	fmt.Println(output)
 }
 
-func executeDockerCommand(commandType string) {
-	deploymentList := util.ReadDeploymentList()
+func executeParentCommand(commandType string) {
+	list := util.ReadDeploymentList()
+	if commandType == "Git Checkout" {
+		list = util.ReadProjectList()
+	}
 	options := []model.SimplePromptItemModel{}
-	for _, project := range deploymentList.List {
+	for _, project := range list.List {
 		options = append(options, model.SimplePromptItemModel{Name: project.ProjectName, Action: "Build"})
 	}
 	options = append(options, model.SimplePromptItemModel{Name: "Back", Action: "Back"})
@@ -93,7 +99,7 @@ func executeDockerCommand(commandType string) {
 	templates := model.GetSimpleSelectTemplate(commandType)
 
 	prompt := promptui.Select{
-		Label:     "Which project do you want to see the docker log?",
+		Label:     "Which project do you want to " + commandType + "?",
 		Items:     options,
 		Templates: templates,
 		Size:      4,
@@ -111,7 +117,7 @@ func executeDockerCommand(commandType string) {
 	projectName := options[i].Name
 
 	var currentProject *model.ProjectParentModel
-	for _, project := range deploymentList.List {
+	for _, project := range list.List {
 		if project.ProjectName == projectName {
 			currentProject = &project
 			break
@@ -124,10 +130,10 @@ func executeDockerCommand(commandType string) {
 		return
 	}
 
-	executeChildDockerLog(currentProject, commandType)
+	executeChildCommand(currentProject, commandType)
 }
 
-func executeChildDockerLog(project *model.ProjectParentModel, commandType string) {
+func executeChildCommand(project *model.ProjectParentModel, commandType string) {
 	options := []model.SimplePromptItemModel{}
 	for _, child := range project.List {
 		options = append(options, model.SimplePromptItemModel{Name: child.ProjectName, Action: "Log"})
@@ -138,7 +144,7 @@ func executeChildDockerLog(project *model.ProjectParentModel, commandType string
 	templates := model.GetSimpleSelectTemplate("Child Project")
 
 	prompt := promptui.Select{
-		Label:     "Which child project do you want to see the docker log?",
+		Label:     "Which child project do you want to " + commandType + "?",
 		Items:     options,
 		Templates: templates,
 		Size:      4,
@@ -149,11 +155,17 @@ func executeChildDockerLog(project *model.ProjectParentModel, commandType string
 	action := options[i].Action
 
 	if action == "Back" {
-		executeDockerCommand(commandType)
+		executeParentCommand(commandType)
 		return
 	}
 
 	childName := options[i].Name
+
+	if commandType == "Git Checkout" {
+		executeGitTagList(project, childName)
+		return
+	}
+
 	containerId, targetName, err := util.GetContainerId(project.ProjectName, childName)
 	if err == nil {
 		fmt.Println("Found image : " + color.GreenString(targetName))
@@ -167,4 +179,58 @@ func executeChildDockerLog(project *model.ProjectParentModel, commandType string
 	}
 
 	color.Red(targetName + " not found, try to check if it is running")
+}
+
+func executeGitTagList(project *model.ProjectParentModel, childName string) {
+	projectPath := ""
+	for _, child := range project.List {
+		if child.ProjectName == childName {
+			util.ExecuteFetchAll(child.ProjectPath)
+
+			projectPath = child.ProjectPath
+			break
+		}
+	}
+
+	if projectPath == "" {
+		color.Red("Unexpected error occurred, " + childName + " not found")
+		Execute()
+		return
+	}
+
+	options := []model.SimplePromptItemModel{}
+
+	tags, _ := util.ExecuteGitListTags(projectPath)
+
+	tagList := strings.Split(tags, "\n")
+	for _, tag := range tagList {
+		if tag == "" {
+			continue
+		}
+		options = append([]model.SimplePromptItemModel{{Name: tag, Action: "Checkout"}}, options...)
+	}
+	options = append(options, model.SimplePromptItemModel{Name: "Back", Action: "Back"})
+
+	searcher := model.GetSimpleSearcher(options)
+	templates := model.GetSimpleSelectTemplate("Git Tag")
+
+	prompt := promptui.Select{
+		Label:     "Which tag do you want to checkout?",
+		Items:     options,
+		Templates: templates,
+		Size:      4,
+		Searcher:  searcher,
+	}
+
+	i, _, _ := prompt.Run()
+	action := options[i].Action
+
+	if action == "Back" {
+		executeParentCommand("Git Checkout")
+		return
+	}
+
+	tag := options[i].Name
+	fmt.Println("Checkout to tag: " + tag)
+	util.ExecuteGitCheckout(projectPath, tag)
 }
